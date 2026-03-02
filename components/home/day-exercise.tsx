@@ -183,7 +183,7 @@ export function DayExercise() {
                                 <CarouselPrevious className="absolute top-1/2 left-4 border-amber-400" />
                                 <CarouselNext className="absolute top-1/2 right-4 border-amber-400" />
                               </Carousel>
-                              <div className="p-2 space-y-4 bg-blue-100 rounded-b-md">
+                              <div className="p-2 space-y-4 bg-gray-500 rounded-b-md">
                                 {(() => {
                                   const exerciseId = `${day.day}-${index}`;
                                   const isChecked =
