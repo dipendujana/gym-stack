@@ -1,10 +1,11 @@
 import { DayExercise } from "@/components/home/day-exercise";
-import { HomeHero } from "@/components/home/home-hero";
+
+import { BackgroundPaths } from "@/components/ui/background-paths";
 
 export default function Page() {
   return (
     <div>
-      <HomeHero />
+      <BackgroundPaths />
       <DayExercise />
     </div>
   );
