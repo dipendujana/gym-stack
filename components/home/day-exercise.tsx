@@ -203,7 +203,7 @@ export function DayExercise() {
                                         className={cn(
                                           "text-lg font-bold text-center",
                                           isChecked &&
-                                            "line-through text-muted-foreground",
+                                            "line-through text-white",
                                         )}
                                       >
                                         {exercise.name}
@@ -293,7 +293,7 @@ export function DayExercise() {
                                         className={cn(
                                           "text-lg font-bold text-center",
                                           isChecked &&
-                                            "line-through text-muted-foreground",
+                                            "line-through text-white",
                                         )}
                                       >
                                         {exercise.name}
