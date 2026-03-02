@@ -24,7 +24,7 @@ export function PushUps() {
       <Carousel>
         <CarouselContent>
           {pushUps.map((pushUp) => (
-            <CarouselItem key={pushUp.id} className="basis-1/2 md:basis-1/3">
+            <CarouselItem key={pushUp.id} className="basis-full md:basis-1/3">
               <div className="p-1">
                 <Card>
                   <CardContent className="p-0">
