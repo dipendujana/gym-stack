@@ -60,7 +60,7 @@ export function BackgroundPaths({
     .filter(Boolean);
 
   return (
-    <div className="relative h-[60vh] w-full flex items-center justify-center overflow-hidden bg-white dark:bg-neutral-950">
+    <div className="relative h-[65vh] w-full flex items-center justify-center overflow-hidden bg-white dark:bg-neutral-950">
       <div className="absolute inset-0">
         <FloatingPaths position={1} />
         <FloatingPaths position={-1} />
