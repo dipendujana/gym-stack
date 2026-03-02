@@ -133,7 +133,9 @@ export function DayExercise() {
   return (
     <section className="">
       <div className="contain px-4 lg:px-10">
-        <h2 className="py-6 text-center text-base lg:text-xl">Day Exercise</h2>
+        <h2 className="py-6 text-center text-xl lg:text-3xl border border-gray-200 pb-4 font-bold rounded-sm">
+          Everyday Exercise Plan
+        </h2>
         <div>
           <Accordion
             type="single"
