@@ -30,44 +30,45 @@ export const dayExercises = [
         {
           name: "Bench Press",
           sets: "4",
-          reps: "12",
+          reps: "8-12",
           srcUrl: ["/home/chest/bench-press.mp4"],
         },
         {
           name: "Incline Dumbbell Press",
           sets: "3",
-          reps: "12",
-          srcUrl: [
-            "/home/chest/incline-dumbbell-press.png",
-            "/home/chest/incline-dumbbell-press.png",
-          ],
+          reps: "10-12",
+          srcUrl: ["/home/chest/incline-dumbbell-press.mp4"],
         },
         {
           name: "Chest Fly",
           sets: "3",
           reps: "12",
-          srcUrl: ["/home/chest/fly-1.png", "/home/chest/fly-2.png"],
+          srcUrl: ["/home/chest/fly.mp4"],
         },
         {
-          name: "Chest Press",
+          name: "Chest Press Machine",
           sets: "3",
-          reps: "12-15",
-          srcUrl: [
-            "/home/chest/chest-press1.png",
-            "/home/chest/chest-press2.png",
-          ],
+          reps: "10-12",
+          srcUrl: ["/home/chest/chest-press.mp4"],
         },
       ],
       exercisesType2: [
         {
           name: "Rope Pushdown",
-          sets: "4",
-          reps: "12",
+          sets: "3",
+          reps: "10-12",
           srcUrl: ["/home/triceps/rope-pushdown.mp4"],
+        },
+        {
+          name: "Overhead Tricep Extension",
+          sets: "3",
+          reps: "10-12",
+          srcUrl: ["/home/triceps/overhead-extension.mp4"],
         },
       ],
     },
   },
+
   {
     day: "Tuesday",
     muscleGroupName: "BACK + BICEPS",
@@ -76,33 +77,211 @@ export const dayExercises = [
     exercises: {
       exercisesType1: [
         {
-          name: "Pull-Up",
+          name: "Pull-Up / Lat Pulldown",
           sets: "4",
-          reps: "12",
-          srcUrl: ["/home/back/pull-up.png", "/home/back/pull-up.png"],
+          reps: "8-12",
+          srcUrl: ["/home/back/pull-up.png"],
+        },
+        {
+          name: "Barbell Row",
+          sets: "3",
+          reps: "8-12",
+          srcUrl: ["/home/back/barbell-row.png"],
+        },
+        {
+          name: "Seated Cable Row",
+          sets: "3",
+          reps: "10-12",
+          srcUrl: ["/home/back/seated-row.png"],
         },
       ],
       exercisesType2: [
         {
-          name: "Bicep Curl",
-          sets: "4",
-          reps: "12",
-          srcUrl: [
-            "/home/biceps/bicep-curl.png",
-            "/home/biceps/bicep-curl.png",
-          ],
+          name: "Barbell Bicep Curl",
+          sets: "3",
+          reps: "10-12",
+          srcUrl: ["/home/biceps/bicep-curl.png"],
+        },
+        {
+          name: "Hammer Curl",
+          sets: "3",
+          reps: "10-12",
+          srcUrl: ["/home/biceps/hammer-curl.png"],
         },
       ],
     },
   },
+
   {
     day: "Wednesday",
+    muscleGroupName: "LEGS",
+    muscleGroup2: "QUADS + HAMSTRINGS",
+    muscleGroup3: "CALVES",
+    exercises: {
+      exercisesType1: [
+        {
+          name: "Squats",
+          sets: "4",
+          reps: "8-12",
+          srcUrl: ["/home/legs/squats.mp4"],
+        },
+        {
+          name: "Leg Press",
+          sets: "3",
+          reps: "10-12",
+          srcUrl: ["/home/legs/leg-press.png"],
+        },
+        {
+          name: "Leg Curl",
+          sets: "3",
+          reps: "10-12",
+          srcUrl: ["/home/legs/leg-curl.mp4"],
+        },
+      ],
+      exercisesType2: [
+        {
+          name: "Standing Calf Raise",
+          sets: "4",
+          reps: "12-15",
+          srcUrl: ["/home/legs/calf-raise.png"],
+        },
+      ],
+    },
+  },
+
+  {
+    day: "Thursday",
     muscleGroupName: "SHOULDERS + ABS",
     muscleGroup2: "SHOULDERS",
-    muscleGroup3: "ABS",
+    muscleGroup3: "CORE",
     exercises: {
-      shoulders: [],
-      abs: [],
+      exercisesType1: [
+        {
+          name: "Shoulder Press",
+          sets: "4",
+          reps: "8-12",
+          srcUrl: ["/home/shoulders/shoulder-press.mp4"],
+        },
+        {
+          name: "Lateral Raise",
+          sets: "3",
+          reps: "12",
+          srcUrl: ["/home/shoulders/lateral-raise.png"],
+        },
+        {
+          name: "Front Raise",
+          sets: "3",
+          reps: "12",
+          srcUrl: ["/home/shoulders/front-raise.png"],
+        },
+      ],
+      exercisesType2: [
+        {
+          name: "Plank",
+          sets: "3",
+          reps: "30-60 sec",
+          srcUrl: ["/home/abs/plank.png"],
+        },
+        {
+          name: "Leg Raise",
+          sets: "3",
+          reps: "12-15",
+          srcUrl: ["/home/abs/leg-raise.png"],
+        },
+      ],
+    },
+  },
+
+  {
+    day: "Friday",
+    muscleGroupName: "CHEST (LIGHT) + ARMS",
+    muscleGroup2: "CHEST",
+    muscleGroup3: "ARMS",
+    exercises: {
+      exercisesType1: [
+        {
+          name: "Incline Bench Press",
+          sets: "3",
+          reps: "10-12",
+          srcUrl: ["/home/chest/incline-bench.png"],
+        },
+        {
+          name: "Push-Ups",
+          sets: "3",
+          reps: "15",
+          srcUrl: ["/home/chest/pushup.png"],
+        },
+      ],
+      exercisesType2: [
+        {
+          name: "Tricep Dips",
+          sets: "3",
+          reps: "10-12",
+          srcUrl: ["/home/triceps/dips.png"],
+        },
+        {
+          name: "Concentration Curl",
+          sets: "3",
+          reps: "10-12",
+          srcUrl: ["/home/biceps/concentration-curl.png"],
+        },
+      ],
+    },
+  },
+
+  {
+    day: "Saturday",
+    muscleGroupName: "BACK + REAR SHOULDER",
+    muscleGroup2: "BACK",
+    muscleGroup3: "REAR DELTS",
+    exercises: {
+      exercisesType1: [
+        {
+          name: "Deadlift",
+          sets: "4",
+          reps: "6-10",
+          srcUrl: ["/home/back/deadlift.mp4"],
+        },
+        {
+          name: "Lat Pulldown",
+          sets: "3",
+          reps: "10-12",
+          srcUrl: ["/home/back/lat-pulldown.png"],
+        },
+      ],
+      exercisesType2: [
+        {
+          name: "Face Pull",
+          sets: "3",
+          reps: "12-15",
+          srcUrl: ["/home/shoulders/face-pull.png"],
+        },
+      ],
+    },
+  },
+
+  {
+    day: "Sunday",
+    muscleGroupName: "REST / ACTIVE RECOVERY",
+    muscleGroup2: "RECOVERY",
+    muscleGroup3: "STRETCHING",
+    exercises: {
+      exercisesType1: [
+        {
+          name: "Light Walking",
+          sets: "20-30 min",
+          reps: "-",
+          srcUrl: ["/home/cardio/walking.png"],
+        },
+      ],
+      exercisesType2: [
+        {
+          name: "Full Body Stretching",
+          sets: "15 min",
+          reps: "-",
+          srcUrl: ["/home/stretching/stretch.png"],
+        },
+      ],
     },
   },
 ];
@@ -166,7 +345,6 @@ export function DayExercise() {
                                         {imageUrl.endsWith(".mp4") ? (
                                           <video
                                             src={imageUrl}
-                                            autoPlay
                                             loop
                                             muted
                                             playsInline
@@ -268,7 +446,6 @@ export function DayExercise() {
                                         {imageUrl.endsWith(".mp4") ? (
                                           <video
                                             src={imageUrl}
-                                            autoPlay
                                             loop
                                             muted
                                             playsInline
