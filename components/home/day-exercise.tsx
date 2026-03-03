@@ -31,16 +31,13 @@ export const dayExercises = [
           name: "Bench Press",
           sets: "4",
           reps: "12",
-          imageUrl: [
-            "/home/chest/bench-press.jpg",
-            "/home/chest/bench-press.jpg",
-          ],
+          srcUrl: ["/home/chest/bench-press.mp4"],
         },
         {
           name: "Incline Dumbbell Press",
           sets: "3",
           reps: "12",
-          imageUrl: [
+          srcUrl: [
             "/home/chest/incline-dumbbell-press.png",
             "/home/chest/incline-dumbbell-press.png",
           ],
@@ -49,13 +46,13 @@ export const dayExercises = [
           name: "Chest Fly",
           sets: "3",
           reps: "12",
-          imageUrl: ["/home/chest/fly-1.png", "/home/chest/fly-2.png"],
+          srcUrl: ["/home/chest/fly-1.png", "/home/chest/fly-2.png"],
         },
         {
           name: "Chest Press",
           sets: "3",
           reps: "12-15",
-          imageUrl: [
+          srcUrl: [
             "/home/chest/chest-press1.png",
             "/home/chest/chest-press2.png",
           ],
@@ -63,13 +60,10 @@ export const dayExercises = [
       ],
       exercisesType2: [
         {
-          name: "Tricep Pushdown",
+          name: "Rope Pushdown",
           sets: "4",
           reps: "12",
-          imageUrl: [
-            "/home/chest/bench-press.jpg",
-            "/home/chest/bench-press.jpg",
-          ],
+          srcUrl: ["/home/triceps/rope-pushdown.mp4"],
         },
       ],
     },
@@ -85,7 +79,7 @@ export const dayExercises = [
           name: "Pull-Up",
           sets: "4",
           reps: "12",
-          imageUrl: ["/home/back/pull-up.png", "/home/back/pull-up.png"],
+          srcUrl: ["/home/back/pull-up.png", "/home/back/pull-up.png"],
         },
       ],
       exercisesType2: [
@@ -93,7 +87,7 @@ export const dayExercises = [
           name: "Bicep Curl",
           sets: "4",
           reps: "12",
-          imageUrl: [
+          srcUrl: [
             "/home/biceps/bicep-curl.png",
             "/home/biceps/bicep-curl.png",
           ],
@@ -133,7 +127,7 @@ export function DayExercise() {
   return (
     <section className="">
       <div className="contain px-4 lg:px-10">
-        <h2 className="py-6 text-center text-xl lg:text-3xl border border-gray-200 pb-4 font-bold rounded-sm">
+        <h2 className="py-6 mb-8 text-center text-xl lg:text-3xl shadow-xl shadow-blue-200/50 border-gray-200 pb-4 font-bold rounded-sm">
           Everyday Exercise Plan
         </h2>
         <div>
@@ -160,22 +154,34 @@ export function DayExercise() {
                           (exercise, index) => (
                             <div
                               key={`${day.day}-${index}`}
-                              className="shadow-md rounded-md border border-gray-200"
+                              className="shadow-md rounded-md border border-gray-200 overflow-hidden"
                             >
                               <Carousel className="w-full">
                                 <CarouselContent>
-                                  {exercise.imageUrl.map(
+                                  {exercise.srcUrl.map(
                                     (imageUrl, imageIndex) => (
                                       <CarouselItem
                                         key={`${exercise.name}-${imageIndex}`}
                                       >
-                                        <Image
-                                          src={imageUrl}
-                                          alt={exercise.name}
-                                          width={100}
-                                          height={100}
-                                          className="h-80 w-full rounded-t-md object-cover"
-                                        />
+                                        {imageUrl.endsWith(".mp4") ? (
+                                          <video
+                                            src={imageUrl}
+                                            autoPlay
+                                            loop
+                                            muted
+                                            playsInline
+                                            controls
+                                            className="h-120 w-full object-cover"
+                                          />
+                                        ) : (
+                                          <Image
+                                            src={imageUrl}
+                                            alt={exercise.name}
+                                            width={100}
+                                            height={100}
+                                            className="h-120 w-full rounded-t-md object-cover"
+                                          />
+                                        )}
                                       </CarouselItem>
                                     ),
                                   )}
@@ -194,7 +200,7 @@ export function DayExercise() {
                                       <Checkbox
                                         id={exerciseId}
                                         checked={isChecked}
-                                        className="border-black"
+                                        className="border-black cursor-pointer"
                                         onCheckedChange={(checked) =>
                                           toggleExercise(exerciseId, checked)
                                         }
@@ -203,7 +209,7 @@ export function DayExercise() {
                                         className={cn(
                                           "text-lg font-bold text-center",
                                           isChecked &&
-                                            "line-through text-white",
+                                            "line-through text-foreground/80",
                                         )}
                                       >
                                         {exercise.name}
@@ -254,18 +260,29 @@ export function DayExercise() {
                             >
                               <Carousel className="w-full">
                                 <CarouselContent>
-                                  {exercise.imageUrl.map(
+                                  {exercise.srcUrl.map(
                                     (imageUrl, imageIndex) => (
                                       <CarouselItem
                                         key={`${exercise.name}-${imageIndex}`}
                                       >
-                                        <Image
-                                          src={imageUrl}
-                                          alt={exercise.name}
-                                          width={100}
-                                          height={100}
-                                          className="h-80 w-full rounded-t-md object-cover"
-                                        />
+                                        {imageUrl.endsWith(".mp4") ? (
+                                          <video
+                                            src={imageUrl}
+                                            autoPlay
+                                            loop
+                                            muted
+                                            playsInline
+                                            className="h-120 w-full rounded-t-md object-cover"
+                                          />
+                                        ) : (
+                                          <Image
+                                            src={imageUrl}
+                                            alt={exercise.name}
+                                            width={100}
+                                            height={100}
+                                            className="h-120 w-full rounded-t-md object-cover"
+                                          />
+                                        )}
                                       </CarouselItem>
                                     ),
                                   )}
@@ -284,7 +301,7 @@ export function DayExercise() {
                                       <Checkbox
                                         id={exerciseId}
                                         checked={isChecked}
-                                        className="border-black"
+                                        className="border-black cursor-pointer"
                                         onCheckedChange={(checked) =>
                                           toggleExercise(exerciseId, checked)
                                         }
@@ -293,7 +310,7 @@ export function DayExercise() {
                                         className={cn(
                                           "text-lg font-bold text-center",
                                           isChecked &&
-                                            "line-through text-white",
+                                            "line-through text-foreground/80",
                                         )}
                                       >
                                         {exercise.name}
