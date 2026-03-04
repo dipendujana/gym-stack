@@ -77,22 +77,28 @@ export const dayExercises = [
     exercises: {
       exercisesType1: [
         {
-          name: "Pull-Up / Lat Pulldown",
+          name: "Lat Pulldown",
           sets: "4",
           reps: "8-12",
-          srcUrl: ["/home/back/pull-up.png"],
-        },
-        {
-          name: "Barbell Row",
-          sets: "3",
-          reps: "8-12",
-          srcUrl: ["/home/back/barbell-row.png"],
+          srcUrl: ["/home/back/lat-pulldown.mp4"],
         },
         {
           name: "Seated Cable Row",
           sets: "3",
           reps: "10-12",
-          srcUrl: ["/home/back/seated-row.png"],
+          srcUrl: ["/home/back/seated-row.mp4"],
+        },
+        {
+          name: "Barbell Row",
+          sets: "3",
+          reps: "8-12",
+          srcUrl: ["/home/back/barbell-bent-over.mp4"],
+        },
+        {
+          name: " T-Bar Rows",
+          sets: "3",
+          reps: "10-12",
+          srcUrl: ["/home/back/t-bar-rows.mp4"],
         },
       ],
       exercisesType2: [
@@ -100,13 +106,16 @@ export const dayExercises = [
           name: "Barbell Bicep Curl",
           sets: "3",
           reps: "10-12",
-          srcUrl: ["/home/biceps/bicep-curl.png"],
+          srcUrl: [
+            "/home/biceps/wide-barbell-curl1.png",
+            "/home/biceps/wide-barbell-curl2.png",
+          ],
         },
         {
-          name: "Hammer Curl",
+          name: "Biceps + Forearm",
           sets: "3",
           reps: "10-12",
-          srcUrl: ["/home/biceps/hammer-curl.png"],
+          srcUrl: ["/home/biceps/biceps_forearm.mp4"],
         },
       ],
     },
@@ -114,8 +123,8 @@ export const dayExercises = [
 
   {
     day: "Wednesday",
-    muscleGroupName: "LEGS",
-    muscleGroup2: "QUADS + HAMSTRINGS",
+    muscleGroupName: "LEGS + CALVES",
+    muscleGroup2: "LEGS",
     muscleGroup3: "CALVES",
     exercises: {
       exercisesType1: [
@@ -129,7 +138,7 @@ export const dayExercises = [
           name: "Leg Press",
           sets: "3",
           reps: "10-12",
-          srcUrl: ["/home/legs/leg-press.png"],
+          srcUrl: ["/home/legs/leg-press.mp4"],
         },
         {
           name: "Leg Curl",
@@ -137,13 +146,19 @@ export const dayExercises = [
           reps: "10-12",
           srcUrl: ["/home/legs/leg-curl.mp4"],
         },
+        {
+          name: "Leg Extension",
+          sets: "3",
+          reps: "10-12",
+          srcUrl: ["/home/legs/leg2.mp4"],
+        },
       ],
       exercisesType2: [
         {
           name: "Standing Calf Raise",
           sets: "4",
           reps: "12-15",
-          srcUrl: ["/home/legs/calf-raise.png"],
+          srcUrl: ["/home/legs/squats2.mp4"],
         },
       ],
     },
@@ -355,8 +370,8 @@ export function DayExercise() {
                                           <Image
                                             src={imageUrl}
                                             alt={exercise.name}
-                                            width={100}
-                                            height={100}
+                                            width={1000}
+                                            height={1000}
                                             className="h-120 w-full rounded-t-md object-cover"
                                           />
                                         )}
@@ -367,7 +382,7 @@ export function DayExercise() {
                                 <CarouselPrevious className="absolute top-1/2 left-4 border-amber-400" />
                                 <CarouselNext className="absolute top-1/2 right-4 border-amber-400" />
                               </Carousel>
-                              <div className="p-2 space-y-4 bg-gray-500 rounded-b-md">
+                              <div className="p-2 space-y-4 bg-gray-100 rounded-b-md">
                                 {(() => {
                                   const exerciseId = `${day.day}-${index}`;
                                   const isChecked =
@@ -446,8 +461,8 @@ export function DayExercise() {
                                         {imageUrl.endsWith(".mp4") ? (
                                           <video
                                             src={imageUrl}
-                                            loop
                                             muted
+                                            controls
                                             playsInline
                                             className="h-120 w-full rounded-t-md object-cover"
                                           />
@@ -455,8 +470,8 @@ export function DayExercise() {
                                           <Image
                                             src={imageUrl}
                                             alt={exercise.name}
-                                            width={100}
-                                            height={100}
+                                            width={1000}
+                                            height={1000}
                                             className="h-120 w-full rounded-t-md object-cover"
                                           />
                                         )}
