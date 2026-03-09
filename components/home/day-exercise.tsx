@@ -215,7 +215,7 @@ export const dayExercises = [
           name: "Push-Ups",
           sets: "3",
           reps: "15",
-          srcUrl: ["/home/exercise/push-up-1.mp4"],
+          srcUrl: ["/exercise/push-up-1.mp4"],
         },
       ],
       exercisesType2: [
@@ -223,7 +223,7 @@ export const dayExercises = [
           name: "Tricep Dips",
           sets: "3",
           reps: "10-12",
-          srcUrl: ["/home/triceps/dips.mp4"],
+          srcUrl: ["/home/triceps/dips1.mp4"],
         },
         {
           name: "Concentration Curl",
