@@ -12,7 +12,7 @@ export function Navbar() {
         </Link>
         <div className="flex items-center gap-4 text-white">
           <Link href="/push-ups">
-            <Button variant="primary">Push Ups</Button>
+            <Button>Push Ups</Button>
           </Link>
         </div>
       </div>
