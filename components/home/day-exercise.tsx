@@ -31,7 +31,10 @@ export const dayExercises = [
           name: "Bench Press",
           sets: "4",
           reps: "8-12",
-          srcUrl: ["/home/chest/bench-press.mp4"],
+          srcUrl: [
+            "/home/chest/bench-press.mp4",
+            "/home/chest/bench-press.mp4",
+          ],
         },
         {
           name: "Incline Dumbbell Press",
@@ -106,10 +109,7 @@ export const dayExercises = [
           name: "Barbell Bicep Curl",
           sets: "3",
           reps: "10-12",
-          srcUrl: [
-            "/home/biceps/wide-barbell-curl1.png",
-            "/home/biceps/wide-barbell-curl2.png",
-          ],
+          srcUrl: ["/home/biceps/wide-barbell-curl1.png"],
         },
         {
           name: "Biceps + Forearm",
@@ -392,8 +392,8 @@ export function DayExercise() {
                                     ),
                                   )}
                                 </CarouselContent>
-                                <CarouselPrevious className="absolute top-1/2 left-4 border-amber-400" />
-                                <CarouselNext className="absolute top-1/2 right-4 border-amber-400" />
+                                <CarouselPrevious className="absolute top-1/2 left-4" />
+                                <CarouselNext className="absolute top-1/2 right-4" />
                               </Carousel>
                               <div className="p-2 space-y-4 bg-gray-100 rounded-b-md">
                                 {(() => {
@@ -492,8 +492,8 @@ export function DayExercise() {
                                     ),
                                   )}
                                 </CarouselContent>
-                                <CarouselPrevious className="absolute top-1/2 left-4 border-amber-400" />
-                                <CarouselNext className="absolute top-1/2 right-4 border-amber-400" />
+                                <CarouselPrevious className="absolute top-1/2 left-4" />
+                                <CarouselNext className="absolute top-1/2 right-4" />
                               </Carousel>
                               <div className="p-2 space-y-4 bg-gray-100 rounded-b-md">
                                 {(() => {
