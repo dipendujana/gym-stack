@@ -12,10 +12,6 @@ const pushUps = [
     id: 1,
     video: "/exercise/push-up-1.mp4",
   },
-  {
-    id: 2,
-    video: "/exercise/push-up-1.mp4",
-  },
 ];
 
 export function PushUps() {
