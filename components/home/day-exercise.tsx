@@ -307,6 +307,19 @@ export function DayExercise() {
   >({});
 
   const [showMoreExercise, setShowMoreExercise] = useState(false);
+  const weekDays = [
+    "Sunday",
+    "Monday",
+    "Tuesday",
+    "Wednesday",
+    "Thursday",
+    "Friday",
+    "Saturday",
+  ];
+  const today = weekDays[new Date().getDay()];
+  const defaultOpenDay = dayExercises.some((day) => day.day === today)
+    ? today
+    : dayExercises[0]?.day;
 
   const toggleExercise = (
     exerciseId: string,
@@ -328,7 +341,7 @@ export function DayExercise() {
           <Accordion
             type="single"
             collapsible
-            defaultValue={dayExercises[0].day}
+            defaultValue={defaultOpenDay}
             className="w-full"
           >
             {dayExercises.map((day) => (
