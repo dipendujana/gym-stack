@@ -1,7 +1,8 @@
 "use client";
 
 import type { ReactNode } from "react";
-import { useCallback, useMemo, useSyncExternalStore } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
+import { addDays, endOfWeek, format, isToday, startOfWeek } from "date-fns";
 import { Checkbox } from "@/components/ui/checkbox";
 import {
   Card,
@@ -13,6 +14,8 @@ import {
 import { Label } from "@/components/ui/label";
 import { Separator } from "@/components/ui/separator";
 import { cn } from "@/lib/utils";
+import { Button } from "@/components/ui/button";
+import { ChevronLeft, ChevronRight } from "lucide-react";
 
 const ROUTINE_TASK_IDS = [
   "morning-wake",
@@ -32,6 +35,7 @@ const ROUTINE_TASK_IDS = [
   "office-quality",
   "fit-ready",
   "fit-workout",
+  "evening-learn-podcast",
   "rec-dinner",
   "rec-rest",
   "rec-phone",
@@ -43,9 +47,57 @@ const ROUTINE_TASK_IDS = [
 
 type Energy = "low" | "medium" | "high" | "";
 
-function todayKey() {
-  return new Date().toISOString().slice(0, 10);
+type ScheduleVariant = "eveningGym" | "morningGym";
+
+/** Wed–Fri: morning gym on machines; Mon/Tue/weekends: evening gym after office. */
+function getScheduleVariantForLocalDay(now = new Date()): ScheduleVariant {
+  const w = now.getDay();
+  if (w === 3 || w === 4 || w === 5) return "morningGym";
+  return "eveningGym";
 }
+
+function todayKeyLocal() {
+  const now = new Date();
+  const y = now.getFullYear();
+  const m = String(now.getMonth() + 1).padStart(2, "0");
+  const d = String(now.getDate()).padStart(2, "0");
+  return `${y}-${m}-${d}`;
+}
+
+/** Display times per weekday pattern (local clock). Same tasks; order changes for gym. */
+const PHASE_TIMES = {
+  eveningGym: {
+    morningFoundation: "6:00 – 6:30 AM",
+    morningUpgrade: "6:30 – 7:00 AM",
+    deepStudy: "7:00 – 8:00 AM",
+    personalCare: "8:00 – 9:00 AM",
+    preparation: "9:00 – 9:50 AM",
+    workPhase: "10:00 AM – 7:00 PM",
+    transition: "7:00 – 7:15 PM",
+    fitness: "7:15 – 8:30 PM",
+    recovery: "9:00 – 10:00 PM",
+    skillGrowth: "10:30 – 11:15 PM",
+    learning: "11:15 – 11:45 PM",
+    reflection: "11:45 PM – 12:00 AM",
+    /** Wed–Fri only shown in UI; unused for evening-gym variant. */
+    eveningLearnPodcast: "",
+  },
+  morningGym: {
+    morningFoundation: "6:00 – 6:30 AM",
+    morningUpgrade: "6:30 – 7:00 AM",
+    transition: "7:00 – 7:30 AM",
+    fitness: "7:30 – 9:00 AM",
+    deepStudy: "9:00 – 9:30 AM",
+    personalCare: "9:30 – 9:45 AM",
+    preparation: "9:45 – 10:00 AM",
+    workPhase: "10:00 AM – 7:00 PM",
+    eveningLearnPodcast: "7:30 – 9:00 PM",
+    recovery: "9:00 – 10:00 PM",
+    skillGrowth: "10:30 – 11:15 PM",
+    learning: "11:15 – 11:45 PM",
+    reflection: "11:45 PM – 12:00 AM",
+  },
+} as const;
 
 function storageKey(date: string) {
   return `gym-stack-daily-routine:${date}`;
@@ -76,49 +128,6 @@ function loadStored(date: string): Stored {
   }
 }
 
-let routineStoreVersion = 0;
-const routineListeners = new Set<() => void>();
-
-let cachedRoutineSnapshot: Stored | undefined;
-let cachedSnapshotVersion = -1;
-let cachedSnapshotDate: string | null = null;
-
-function subscribeRoutine(onStoreChange: () => void) {
-  routineListeners.add(onStoreChange);
-  return () => routineListeners.delete(onStoreChange);
-}
-
-function bumpRoutineStore() {
-  routineStoreVersion += 1;
-  routineListeners.forEach((l) => l());
-}
-
-/** Must return the same object reference when store & day are unchanged (React `useSyncExternalStore`). */
-function getRoutineSnapshot(): Stored {
-  void routineStoreVersion;
-  const date = todayKey();
-  if (
-    cachedRoutineSnapshot !== undefined &&
-    cachedSnapshotVersion === routineStoreVersion &&
-    cachedSnapshotDate === date
-  ) {
-    return cachedRoutineSnapshot;
-  }
-  cachedSnapshotVersion = routineStoreVersion;
-  cachedSnapshotDate = date;
-  cachedRoutineSnapshot = loadStored(date);
-  return cachedRoutineSnapshot;
-}
-
-function getServerRoutineSnapshot(): Stored {
-  return SERVER_ROUTINE_SNAPSHOT;
-}
-
-function persistRoutine(next: Stored) {
-  localStorage.setItem(storageKey(todayKey()), JSON.stringify(next));
-  bumpRoutineStore();
-}
-
 function CheckRow({
   id,
   label,
@@ -145,50 +154,197 @@ function CheckRow({
   );
 }
 
+const WEEK_STARTS_ON = 1 as const;
+
+function WeeklyRoutineStrip({
+  selected,
+  onSelect,
+}: {
+  selected: Date;
+  onSelect: (d: Date) => void;
+}) {
+  const weekStart = startOfWeek(selected, { weekStartsOn: WEEK_STARTS_ON });
+  const weekEnd = endOfWeek(selected, { weekStartsOn: WEEK_STARTS_ON });
+
+  const selectedKey = format(selected, "yyyy-MM-dd");
+
+  return (
+    <div className="border-border space-y-3 rounded-lg border px-3 py-3">
+      <div className="flex items-center justify-between gap-2">
+        <Button
+          type="button"
+          variant="outline"
+          size="icon-sm"
+          className="shrink-0"
+          aria-label="Previous week"
+          onClick={() => onSelect(addDays(selected, -7))}
+        >
+          <ChevronLeft className="size-4" />
+        </Button>
+        <p className="text-muted-foreground px-1 text-center text-xs font-medium sm:text-sm">
+          {format(weekStart, "MMM d")} – {format(weekEnd, "MMM d, yyyy")}
+        </p>
+        <Button
+          type="button"
+          variant="outline"
+          size="icon-sm"
+          className="shrink-0"
+          aria-label="Next week"
+          onClick={() => onSelect(addDays(selected, 7))}
+        >
+          <ChevronRight className="size-4" />
+        </Button>
+      </div>
+      <div className="grid grid-cols-7 gap-1">
+        {Array.from({ length: 7 }, (_, i) => {
+          const d = addDays(weekStart, i);
+          const dayKey = format(d, "yyyy-MM-dd");
+          const morningGymDay =
+            getScheduleVariantForLocalDay(d) === "morningGym";
+          const isSelected = dayKey === selectedKey;
+
+          return (
+            <button
+              key={dayKey}
+              type="button"
+              onClick={() => onSelect(d)}
+              className={cn(
+                "flex flex-col items-center rounded-md border py-2 text-center transition-colors",
+                "hover:bg-muted/70",
+                morningGymDay
+                  ? "border-amber-500/35 bg-amber-500/[0.07]"
+                  : "border-border",
+                isSelected &&
+                  "ring-primary/60 border-primary bg-primary/10 ring-2",
+                isToday(d) && !isSelected && "border-foreground/25",
+              )}
+            >
+              <span className="text-muted-foreground text-[0.65rem] font-medium uppercase">
+                {format(d, "EEE")}
+              </span>
+              <span className="text-foreground text-sm tabular-nums font-semibold">
+                {format(d, "d")}
+              </span>
+              <span
+                className={cn(
+                  "mt-1 max-w-full truncate rounded px-0.5 text-[10px] font-medium",
+                  morningGymDay
+                    ? "text-amber-900 dark:text-amber-100"
+                    : "text-sky-900 dark:text-sky-100",
+                )}
+              >
+                {morningGymDay ? "AM gym" : "PM gym"}
+              </span>
+            </button>
+          );
+        })}
+      </div>
+    </div>
+  );
+}
+
 export function DailyRoutine() {
-  const { tasks, energy } = useSyncExternalStore(
-    subscribeRoutine,
-    getRoutineSnapshot,
-    getServerRoutineSnapshot,
+  const [selectedCalendarDate, setSelectedCalendarDate] = useState(
+    () => new Date(),
+  );
+  const viewingKey = useMemo(
+    () => format(selectedCalendarDate, "yyyy-MM-dd"),
+    [selectedCalendarDate],
   );
 
-  const date = todayKey();
+  const [stored, setStored] = useState<Stored>(() => SERVER_ROUTINE_SNAPSHOT);
 
-  const setTask = useCallback((id: string, next: boolean) => {
-    const prev = loadStored(todayKey());
-    persistRoutine({
-      ...prev,
-      tasks: { ...prev.tasks, [id]: next },
-    });
-  }, []);
+  useEffect(() => {
+    setStored(loadStored(viewingKey));
+  }, [viewingKey]);
 
-  const setEnergyLevel = useCallback((level: Exclude<Energy, "">) => {
-    const prev = loadStored(todayKey());
-    const nextEnergy: Energy = prev.energy === level ? "" : level;
-    persistRoutine({ ...prev, energy: nextEnergy });
-  }, []);
+  const tasks = stored.tasks;
+  const energy = stored.energy;
+
+  const setTask = useCallback(
+    (id: string, checked: boolean) => {
+      const key = viewingKey;
+      setStored((prev) => {
+        const nextState: Stored = {
+          ...prev,
+          tasks: { ...prev.tasks, [id]: checked },
+        };
+        if (typeof window !== "undefined") {
+          localStorage.setItem(storageKey(key), JSON.stringify(nextState));
+        }
+        return nextState;
+      });
+    },
+    [viewingKey],
+  );
+
+  const setEnergyLevel = useCallback(
+    (level: Exclude<Energy, "">) => {
+      const key = viewingKey;
+      setStored((prev) => {
+        const nextEnergy: Energy = prev.energy === level ? "" : level;
+        const nextState: Stored = { ...prev, energy: nextEnergy };
+        if (typeof window !== "undefined") {
+          localStorage.setItem(storageKey(key), JSON.stringify(nextState));
+        }
+        return nextState;
+      });
+    },
+    [viewingKey],
+  );
+
+  const scheduleVariant = getScheduleVariantForLocalDay(selectedCalendarDate);
+  const t = PHASE_TIMES[scheduleVariant];
+  const morningGym = scheduleVariant === "morningGym";
+
+  const countedTaskIds = useMemo(
+    () =>
+      ROUTINE_TASK_IDS.filter(
+        (id) => id !== "evening-learn-podcast" || morningGym,
+      ),
+    [morningGym],
+  );
 
   const routineCheckedCount = useMemo(() => {
-    return ROUTINE_TASK_IDS.filter((id) => tasks[id]).length;
-  }, [tasks]);
+    return countedTaskIds.filter((id) => tasks[id]).length;
+  }, [tasks, countedTaskIds]);
 
-  const routineTotal = ROUTINE_TASK_IDS.length;
+  const routineTotal = countedTaskIds.length;
   const pct = routineTotal
     ? Math.round((routineCheckedCount / routineTotal) * 100)
     : 0;
   const hitEightyPlus = pct >= 80;
 
+  const todayKey = todayKeyLocal();
+  const isViewingToday = viewingKey === todayKey;
+
   return (
     <div
-      className="contain mx-auto max-w-2xl px-4 pb-16 pt-2 relative"
+      className="contain relative mx-auto max-w-2xl px-4 pt-2 pb-16"
       suppressHydrationWarning
     >
-      <div className="sticky top-0 mt-3 z-10 pb-4 bg-background">
-        <header className="mb-8 space-y-2">
+      <div className="bg-background sticky top-0 z-10 mt-3 pb-4">
+        <header className="mb-6 space-y-2">
           <h1 className="text-2xl font-semibold tracking-tight sm:text-3xl">
             Daily Dream Life Checklist
           </h1>
-          <p className="text-muted-foreground text-sm">{date}</p>
+          <div className="text-muted-foreground flex flex-wrap justify-between items-center gap-x-2 gap-y-1 text-sm">
+            <span>{format(selectedCalendarDate, "EEEE, MMM d, yyyy")} · </span>
+            {isViewingToday ? (
+              <Button className="rounded-md" variant="outline">
+                Today
+              </Button>
+            ) : (
+              <Button
+                type="button"
+                variant="outline"
+                className="rounded-md"
+                onClick={() => setSelectedCalendarDate(new Date())}
+              >
+                Jump to today
+              </Button>
+            )}
+          </div>
         </header>
         <Card className="rounded-md">
           <CardHeader>
@@ -196,6 +352,9 @@ export function DailyRoutine() {
             <CardDescription>
               {routineCheckedCount} / {routineTotal} tasks · {pct}%
               {hitEightyPlus ? " · On track for 80%+" : ""}
+              {!isViewingToday
+                ? ` · Tracking ${viewingKey} (pick another day above)`
+                : null}
             </CardDescription>
             <div
               className="bg-muted mt-3 h-2 w-full overflow-hidden rounded-full"
@@ -210,6 +369,12 @@ export function DailyRoutine() {
               />
             </div>
           </CardHeader>
+          <CardContent className="pt-2">
+            <WeeklyRoutineStrip
+              selected={selectedCalendarDate}
+              onSelect={setSelectedCalendarDate}
+            />
+          </CardContent>
         </Card>
       </div>
 
@@ -217,7 +382,7 @@ export function DailyRoutine() {
         <Section
           emoji="🌅"
           title="Morning Foundation"
-          time="6:00 – 6:30 AM"
+          time={t.morningFoundation}
           description="Wake up, drink water, stretching / light walk, 5 min planning."
         >
           <CheckRow
@@ -249,7 +414,7 @@ export function DailyRoutine() {
         <Section
           emoji="🚀"
           title="Morning Upgrade"
-          time="6:30 – 7:00 AM"
+          time={t.morningUpgrade}
           description="English speaking practice OR revise yesterday’s learning."
         >
           <CheckRow
@@ -266,11 +431,47 @@ export function DailyRoutine() {
           />
         </Section>
 
+        {morningGym ? (
+          <>
+            <Section
+              emoji="🏃"
+              title="Transition"
+              time={t.transition}
+              description="Gym prep before your machine session (fuel, gear, commute)."
+            >
+              <CheckRow
+                id="fit-ready"
+                label="Ready for gym (gear, commute, warmup mindset)"
+                checked={!!tasks["fit-ready"]}
+                onCheckedChange={setTask}
+              />
+            </Section>
+
+            <Section
+              emoji="💪"
+              title="Fitness"
+              time={t.fitness}
+              description="Machines / your gym routine — strength focus."
+            >
+              <CheckRow
+                id="fit-workout"
+                label="Gym workout — machines / programmed routine"
+                checked={!!tasks["fit-workout"]}
+                onCheckedChange={setTask}
+              />
+            </Section>
+          </>
+        ) : null}
+
         <Section
           emoji="🧠"
           title="Deep Study"
-          time="7:00 – 8:00 AM"
-          description="JavaScript / problem solving — no distractions."
+          time={t.deepStudy}
+          description={
+            morningGym
+              ? "After gym — JavaScript / problem solving, minimal distractions until office."
+              : "JavaScript / problem solving — no distractions."
+          }
         >
           <CheckRow
             id="deep-js"
@@ -283,8 +484,12 @@ export function DailyRoutine() {
         <Section
           emoji="🍽️"
           title="Personal Care"
-          time="8:00 – 9:00 AM"
-          description="Home work + breakfast (eat properly for weight gain)."
+          time={t.personalCare}
+          description={
+            morningGym
+              ? "Breakfast + homework in a tighter window before work."
+              : "Home work + breakfast (eat properly for weight gain)."
+          }
         >
           <CheckRow
             id="care-homework"
@@ -303,8 +508,12 @@ export function DailyRoutine() {
         <Section
           emoji="🧑‍💻"
           title="Preparation"
-          time="9:00 – 9:50 AM"
-          description="Get ready + light planning — set 1 improvement goal for office."
+          time={t.preparation}
+          description={
+            morningGym
+              ? "Get ready + light planning — be out the door for office on time."
+              : "Get ready + light planning — set 1 improvement goal for office."
+          }
         >
           <CheckRow
             id="prep-office"
@@ -323,7 +532,7 @@ export function DailyRoutine() {
         <Section
           emoji="💼"
           title="Work Phase"
-          time="10:00 AM – 7:00 PM"
+          time={t.workPhase}
           description="Office work + active learning: observe seniors, improve code quality, learn, ask questions."
         >
           <CheckRow
@@ -352,39 +561,63 @@ export function DailyRoutine() {
           />
         </Section>
 
-        <Section
-          emoji="🏃"
-          title="Transition"
-          time="7:00 – 7:15 PM"
-          description="Gym preparation."
-        >
-          <CheckRow
-            id="fit-ready"
-            label="Ready for gym (gear, commute, warmup mindset)"
-            checked={!!tasks["fit-ready"]}
-            onCheckedChange={setTask}
-          />
-        </Section>
+        {!morningGym ? (
+          <>
+            <Section
+              emoji="🏃"
+              title="Transition"
+              time={t.transition}
+              description="Gym preparation."
+            >
+              <CheckRow
+                id="fit-ready"
+                label="Ready for gym (gear, commute, warmup mindset)"
+                checked={!!tasks["fit-ready"]}
+                onCheckedChange={setTask}
+              />
+            </Section>
 
-        <Section
-          emoji="💪"
-          title="Fitness"
-          time="7:15 – 8:30 PM"
-          description="Strength training focus."
-        >
-          <CheckRow
-            id="fit-workout"
-            label="Gym workout (strength training)"
-            checked={!!tasks["fit-workout"]}
-            onCheckedChange={setTask}
-          />
-        </Section>
+            <Section
+              emoji="💪"
+              title="Fitness"
+              time={t.fitness}
+              description="Strength training focus."
+            >
+              <CheckRow
+                id="fit-workout"
+                label="Gym workout (strength training)"
+                checked={!!tasks["fit-workout"]}
+                onCheckedChange={setTask}
+              />
+            </Section>
+          </>
+        ) : (
+          <Section
+            emoji="🎧"
+            title="Evening learning"
+            time={t.eveningLearnPodcast}
+            description={
+              "After office — courses, deliberate study, podcast listening — keep the phone parked."
+            }
+          >
+            <CheckRow
+              id="evening-learn-podcast"
+              label="Evening learning and/or podcasts (focused listen, notes if useful)"
+              checked={!!tasks["evening-learn-podcast"]}
+              onCheckedChange={setTask}
+            />
+          </Section>
+        )}
 
         <Section
           emoji="🍽️"
           title="Recovery"
-          time="9:00 – 10:00 PM"
-          description="Dinner + rest — high-calorie meal, avoid phone overload."
+          time={t.recovery}
+          description={
+            morningGym
+              ? "After evening learning — dinner + rest — high-calorie meal, skip doomscroll."
+              : "Dinner + rest — high-calorie meal, avoid phone overload."
+          }
         >
           <CheckRow
             id="rec-dinner"
@@ -409,7 +642,7 @@ export function DailyRoutine() {
         <Section
           emoji="⚡"
           title="Skill Growth"
-          time="10:30 – 11:15 PM"
+          time={t.skillGrowth}
           description="JavaScript / TypeScript / project work."
         >
           <CheckRow
@@ -423,7 +656,7 @@ export function DailyRoutine() {
         <Section
           emoji="📚"
           title="Learning"
-          time="11:15 – 11:45 PM"
+          time={t.learning}
           description="Reading — tech, mindset, or career."
         >
           <CheckRow
@@ -437,7 +670,7 @@ export function DailyRoutine() {
         <Section
           emoji="📝"
           title="Reflection"
-          time="11:45 PM – 12:00 AM"
+          time={t.reflection}
           description="Review the day + plan improvements."
         >
           <CheckRow
