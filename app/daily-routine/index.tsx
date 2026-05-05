@@ -233,7 +233,7 @@ function WeeklyRoutineStrip({
                     : "text-sky-900 dark:text-sky-100",
                 )}
               >
-                {morningGymDay ? "AM gym" : "PM gym"}
+                {morningGymDay ? "AM Gym" : "PM Gym"}
               </span>
             </button>
           );
@@ -347,6 +347,12 @@ export function DailyRoutine() {
           </div>
         </header>
         <Card className="rounded-md">
+          <div className="px-3">
+            <WeeklyRoutineStrip
+              selected={selectedCalendarDate}
+              onSelect={setSelectedCalendarDate}
+            />
+          </div>
           <CardHeader>
             <CardTitle className="text-lg">Progress</CardTitle>
             <CardDescription>
@@ -369,12 +375,6 @@ export function DailyRoutine() {
               />
             </div>
           </CardHeader>
-          <CardContent className="pt-2">
-            <WeeklyRoutineStrip
-              selected={selectedCalendarDate}
-              onSelect={setSelectedCalendarDate}
-            />
-          </CardContent>
         </Card>
       </div>
 
