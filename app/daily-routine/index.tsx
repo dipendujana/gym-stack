@@ -216,12 +216,13 @@ export function DailyRoutine() {
       <div className="space-y-6 pt-2">
         <Section
           emoji="🌅"
-          title="Morning (Foundation)"
-          description="Start the day with structure."
+          title="Morning Foundation"
+          time="6:00 – 6:30 AM"
+          description="Wake up, drink water, stretching / light walk, 5 min planning."
         >
           <CheckRow
             id="morning-wake"
-            label="Wake up at 6:00 AM"
+            label="Wake up (~6:00 AM)"
             checked={!!tasks["morning-wake"]}
             onCheckedChange={setTask}
           />
@@ -248,6 +249,7 @@ export function DailyRoutine() {
         <Section
           emoji="🚀"
           title="Morning Upgrade"
+          time="6:30 – 7:00 AM"
           description="English speaking practice OR revise yesterday’s learning."
         >
           <CheckRow
@@ -264,7 +266,12 @@ export function DailyRoutine() {
           />
         </Section>
 
-        <Section emoji="🧠" title="Deep Work">
+        <Section
+          emoji="🧠"
+          title="Deep Study"
+          time="7:00 – 8:00 AM"
+          description="JavaScript / problem solving — no distractions."
+        >
           <CheckRow
             id="deep-js"
             label="1 hour JavaScript / problem solving (no distractions)"
@@ -273,7 +280,12 @@ export function DailyRoutine() {
           />
         </Section>
 
-        <Section emoji="🍽️" title="Personal Care">
+        <Section
+          emoji="🍽️"
+          title="Personal Care"
+          time="8:00 – 9:00 AM"
+          description="Home work + breakfast (eat properly for weight gain)."
+        >
           <CheckRow
             id="care-homework"
             label="Complete home work"
@@ -288,7 +300,12 @@ export function DailyRoutine() {
           />
         </Section>
 
-        <Section emoji="🧑‍💻" title="Work Preparation">
+        <Section
+          emoji="🧑‍💻"
+          title="Preparation"
+          time="9:00 – 9:50 AM"
+          description="Get ready + light planning — set 1 improvement goal for office."
+        >
           <CheckRow
             id="prep-office"
             label="Get ready for office"
@@ -303,7 +320,12 @@ export function DailyRoutine() {
           />
         </Section>
 
-        <Section emoji="💼" title="Office (10 AM – 7 PM)">
+        <Section
+          emoji="💼"
+          title="Work Phase"
+          time="10:00 AM – 7:00 PM"
+          description="Office work + active learning: observe seniors, improve code quality, learn, ask questions."
+        >
           <CheckRow
             id="office-focus"
             label="Stay focused on tasks"
@@ -330,22 +352,40 @@ export function DailyRoutine() {
           />
         </Section>
 
-        <Section emoji="💪" title="Fitness">
+        <Section
+          emoji="🏃"
+          title="Transition"
+          time="7:00 – 7:15 PM"
+          description="Gym preparation."
+        >
           <CheckRow
             id="fit-ready"
-            label="Get ready for gym"
+            label="Ready for gym (gear, commute, warmup mindset)"
             checked={!!tasks["fit-ready"]}
             onCheckedChange={setTask}
           />
+        </Section>
+
+        <Section
+          emoji="💪"
+          title="Fitness"
+          time="7:15 – 8:30 PM"
+          description="Strength training focus."
+        >
           <CheckRow
             id="fit-workout"
-            label="Complete workout (strength training)"
+            label="Gym workout (strength training)"
             checked={!!tasks["fit-workout"]}
             onCheckedChange={setTask}
           />
         </Section>
 
-        <Section emoji="🍽️" title="Recovery">
+        <Section
+          emoji="🍽️"
+          title="Recovery"
+          time="9:00 – 10:00 PM"
+          description="Dinner + rest — high-calorie meal, avoid phone overload."
+        >
           <CheckRow
             id="rec-dinner"
             label="Eat high-calorie dinner"
@@ -366,28 +406,53 @@ export function DailyRoutine() {
           />
         </Section>
 
-        <Section emoji="🌙" title="Night Growth">
+        <Section
+          emoji="⚡"
+          title="Skill Growth"
+          time="10:30 – 11:15 PM"
+          description="JavaScript / TypeScript / project work."
+        >
           <CheckRow
             id="night-skill"
-            label="45 min skill growth (JS / TS / project)"
+            label="Focused skill block (~45 min): JS / TS / project"
             checked={!!tasks["night-skill"]}
             onCheckedChange={setTask}
           />
+        </Section>
+
+        <Section
+          emoji="📚"
+          title="Learning"
+          time="11:15 – 11:45 PM"
+          description="Reading — tech, mindset, or career."
+        >
           <CheckRow
             id="night-read"
-            label="30 min reading (tech / mindset)"
+            label="Reading (~30 min): tech / mindset / career"
             checked={!!tasks["night-read"]}
             onCheckedChange={setTask}
           />
+        </Section>
+
+        <Section
+          emoji="📝"
+          title="Reflection"
+          time="11:45 PM – 12:00 AM"
+          description="Review the day + plan improvements."
+        >
           <CheckRow
             id="night-reflect"
-            label="15 min reflection"
+            label="Review day & plan improvements (~15 min)"
             checked={!!tasks["night-reflect"]}
             onCheckedChange={setTask}
           />
         </Section>
 
-        <Section emoji="📊" title="Daily Score (Track Yourself)">
+        <Section
+          emoji="📊"
+          title="Daily Score"
+          description="Quick end-of-day check-in."
+        >
           <div className="flex items-start gap-3 py-1.5">
             <Checkbox
               id="score-80"
@@ -450,21 +515,30 @@ export function DailyRoutine() {
 function Section({
   emoji,
   title,
+  time,
   description,
   children,
 }: {
   emoji: string;
   title: string;
+  time?: string;
   description?: string;
   children: ReactNode;
 }) {
   return (
     <Card className="rounded-md">
-      <CardHeader>
-        <CardTitle className="flex items-center gap-2 text-base">
-          <span aria-hidden>{emoji}</span>
-          <span>{title}</span>
-        </CardTitle>
+      <CardHeader className="space-y-2">
+        <div className="flex flex-wrap items-start justify-between gap-x-4 gap-y-1">
+          <CardTitle className="flex flex-wrap items-center gap-2 text-base">
+            <span aria-hidden>{emoji}</span>
+            <span>{title}</span>
+          </CardTitle>
+          {time ? (
+            <span className="text-muted-foreground shrink-0 font-mono text-xs font-medium tracking-tight sm:text-sm">
+              {time}
+            </span>
+          ) : null}
+        </div>
         {description ? <CardDescription>{description}</CardDescription> : null}
       </CardHeader>
       <CardContent className="space-y-0 pt-0">
