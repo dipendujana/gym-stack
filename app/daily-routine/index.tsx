@@ -2,7 +2,14 @@
 
 import type { ReactNode } from "react";
 import { useCallback, useEffect, useMemo, useState } from "react";
-import { addDays, endOfWeek, format, isToday, startOfWeek } from "date-fns";
+import {
+  addDays,
+  endOfWeek,
+  format,
+  isToday,
+  startOfWeek,
+  subDays,
+} from "date-fns";
 import { Checkbox } from "@/components/ui/checkbox";
 import {
   Card,
@@ -126,6 +133,72 @@ function loadStored(date: string): Stored {
   } catch {
     return SERVER_ROUTINE_SNAPSHOT;
   }
+}
+
+const CHALLENGE_DAYS = 21;
+const CHALLENGE_PASS_PCT = 80;
+
+function parseLocalDateKey(dateKey: string): Date {
+  const [y, mo, d] = dateKey.split("-").map(Number);
+  return new Date(y, (mo ?? 1) - 1, d ?? 1, 12, 0, 0, 0);
+}
+
+function countedTaskIdsForVariant(variant: ScheduleVariant): readonly string[] {
+  return ROUTINE_TASK_IDS.filter(
+    (id) => id !== "evening-learn-podcast" || variant === "morningGym",
+  );
+}
+
+function completionPctForDateKey(dateKey: string): number {
+  const variant = getScheduleVariantForLocalDay(parseLocalDateKey(dateKey));
+  const ids = countedTaskIdsForVariant(variant);
+  const s = loadStored(dateKey);
+  if (!ids.length) return 0;
+  const done = ids.filter((id) => s.tasks[id]).length;
+  return Math.round((done / ids.length) * 100);
+}
+
+/** GitHub-style intensity: 0 empty, 4 = pass (≥80%). */
+function challengeHeatmapTier(pct: number): 0 | 1 | 2 | 3 | 4 {
+  if (pct <= 0) return 0;
+  if (pct < 40) return 1;
+  if (pct < 60) return 2;
+  if (pct < CHALLENGE_PASS_PCT) return 3;
+  return 4;
+}
+
+function challengeHeatmapCellClass(tier: 0 | 1 | 2 | 3 | 4) {
+  return cn(
+    "rounded-md border shadow-sm transition-[background-color,border-color]",
+    tier === 0 &&
+      "border-border/80 bg-muted/80 dark:bg-[#161b22] dark:border-zinc-800",
+    tier === 1 &&
+      "border-emerald-700/20 bg-emerald-200 dark:border-emerald-900 dark:bg-emerald-950",
+    tier === 2 &&
+      "border-emerald-700/35 bg-emerald-400 dark:border-emerald-800 dark:bg-emerald-900",
+    tier === 3 &&
+      "border-emerald-600/50 bg-emerald-500 dark:border-emerald-600 dark:bg-emerald-700",
+    tier === 4 &&
+      "border-lime-600/55 bg-[#39d353] shadow-[inset_0_-1px_0_rgba(0,0,0,0.12)] dark:border-lime-300/55 dark:bg-lime-400 dark:shadow-none",
+  );
+}
+
+/** Oldest → newest (today − 20 … today); order matches displayed strip left → right */
+function buildChallengeContributionCells(): Array<{
+  dateKey: string;
+  pct: number;
+  tier: 0 | 1 | 2 | 3 | 4;
+}> {
+  return Array.from({ length: CHALLENGE_DAYS }, (_, idx) => {
+    const d = subDays(new Date(), CHALLENGE_DAYS - 1 - idx);
+    const dateKey = format(d, "yyyy-MM-dd");
+    const pct = completionPctForDateKey(dateKey);
+    return {
+      dateKey,
+      pct,
+      tier: challengeHeatmapTier(pct),
+    };
+  });
 }
 
 function CheckRow({
@@ -318,6 +391,19 @@ export function DailyRoutine() {
   const todayKey = todayKeyLocal();
   const isViewingToday = viewingKey === todayKey;
 
+  const [heatmapMounted, setHeatmapMounted] = useState(false);
+  useEffect(() => {
+    setHeatmapMounted(true);
+  }, []);
+
+  const contributionCells = useMemo(() => {
+    void tasks;
+    void viewingKey;
+    void todayKey;
+    if (!heatmapMounted) return null;
+    return buildChallengeContributionCells();
+  }, [heatmapMounted, tasks, viewingKey, todayKey]);
+
   return (
     <div
       className="contain relative mx-auto max-w-2xl px-4 pt-2 pb-16"
@@ -376,9 +462,83 @@ export function DailyRoutine() {
             </div>
           </CardHeader>
         </Card>
+        {/* Full-width streak outside Card (Card uses overflow-hidden) */}
+        <div
+          className="border-border bg-background mt-3 w-screen border-y py-5 sm:mt-4 sm:py-7"
+          style={{
+            marginLeft: "calc(50% - 50vw)",
+            marginRight: "calc(50% - 50vw)",
+          }}
+        >
+          <div className="mx-auto flex max-w-[100vw] flex-col items-center px-4 sm:px-6">
+            <p className="text-foreground text-center text-sm font-semibold sm:text-base">
+              {CHALLENGE_DAYS} Days Challenge
+            </p>
+
+            <div
+              role="group"
+              aria-label="Twenty-one-day completion strip, oldest left to today right"
+              className="mt-5 grid w-full grid-cols-21 gap-2 sm:gap-3 md:gap-4 lg:gap-5"
+            >
+              {(
+                contributionCells ??
+                Array.from({ length: CHALLENGE_DAYS }, () => null)
+              ).map((cell, idx) => {
+                const streakDayIndex = idx + 1;
+                return cell ? (
+                  <div
+                    key={cell.dateKey}
+                    aria-label={`Day ${streakDayIndex} of ${CHALLENGE_DAYS}, ${cell.dateKey}, ${cell.pct} percent complete`}
+                    className={cn(
+                      "flex aspect-square min-h-0 min-w-0 flex-col items-center justify-center",
+                      challengeHeatmapCellClass(cell.tier),
+                      cell.dateKey === todayKey &&
+                        "ring-ring ring-2 ring-offset-2 ring-offset-background",
+                    )}
+                  >
+                    <span
+                      className={cn(
+                        "text-sm font-medium tabular-nums sm:text-base",
+                        cell.tier === 4
+                          ? "text-green-950"
+                          : cell.tier === 3
+                            ? "text-white drop-shadow-sm dark:text-white"
+                            : "text-foreground",
+                      )}
+                    >
+                      {streakDayIndex}
+                    </span>
+                  </div>
+                ) : (
+                  <div
+                    key={`contrib-skel-${idx}`}
+                    aria-hidden
+                    className="bg-muted/30 aspect-square min-h-0 min-w-0 rounded-md border border-transparent"
+                  />
+                );
+              })}
+            </div>
+
+            <div className="text-muted-foreground mt-6 flex flex-wrap items-center justify-center gap-2 text-xs">
+              <span>Intensity</span>
+              <div className="flex gap-1.5">
+                {[0, 1, 2, 3, 4].map((tier) => (
+                  <span
+                    key={tier}
+                    aria-hidden
+                    className={cn(
+                      "inline-flex size-4 items-center justify-center rounded sm:size-5",
+                      challengeHeatmapCellClass(tier as 0 | 1 | 2 | 3 | 4),
+                    )}
+                  />
+                ))}
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
 
-      <div className="space-y-6 pt-2">
+      <div className="space-y-6 pt-2 px-1">
         <Section
           emoji="🌅"
           title="Morning Foundation"
@@ -463,7 +623,7 @@ export function DailyRoutine() {
           </>
         ) : null}
 
-        <Section
+        {/* <Section
           emoji="🧠"
           title="Deep Study"
           time={t.deepStudy}
@@ -479,7 +639,7 @@ export function DailyRoutine() {
             checked={!!tasks["deep-js"]}
             onCheckedChange={setTask}
           />
-        </Section>
+        </Section> */}
 
         <Section
           emoji="🍽️"
