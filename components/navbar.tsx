@@ -1,4 +1,4 @@
-import { ClipboardPenLine, Dumbbell } from "lucide-react";
+import { Dumbbell } from "lucide-react";
 import Link from "next/link";
 import { Button } from "./ui/button";
 
@@ -13,11 +13,11 @@ export function Navbar() {
           <Link href="/push-ups">
             <Button className="rounded-md">Push Ups</Button>
           </Link>
-          <Link href="/daily-routine">
+          {/* <Link href="/daily-routine">
             <Button className="rounded-md">
               <ClipboardPenLine />
             </Button>
-          </Link>
+          </Link> */}
         </div>
       </div>
     </div>
