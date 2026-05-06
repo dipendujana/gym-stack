@@ -470,7 +470,7 @@ export function DailyRoutine() {
             marginRight: "calc(50% - 50vw)",
           }}
         >
-          <div className="mx-auto flex max-w-[100vw] flex-col items-center px-4 sm:px-6">
+          <div className="mx-auto flex flex-col items-center px-4 sm:px-6">
             <p className="text-foreground text-center text-sm font-semibold sm:text-base">
               {CHALLENGE_DAYS} Days Challenge
             </p>
@@ -478,7 +478,7 @@ export function DailyRoutine() {
             <div
               role="group"
               aria-label="Twenty-one-day completion strip, oldest left to today right"
-              className="mt-5 grid w-full grid-cols-21 gap-2 sm:gap-3 md:gap-4 lg:gap-5"
+              className="mt-5 grid w-full grid-cols-7 gap-2 sm:gap-3 md:gap-4 lg:gap-5"
             >
               {(
                 contributionCells ??
